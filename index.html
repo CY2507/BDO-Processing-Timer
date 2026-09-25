@@ -299,22 +299,6 @@
                 <label for="ownedMaterial">보유 갯수</label>
                 <input id="ownedMaterial" type="number" min="0" step="1" value="29636">
             </div>
-            <div class="field">
-                <label for="consumePerProcess">1회 가공시 소모 수</label>
-                <input id="consumePerProcess" class="readonly" type="text" readonly>
-            </div>
-            <div class="field">
-                <label for="product">가공품</label>
-                <input id="product" class="readonly" type="text" readonly>
-            </div>
-            <div class="field">
-                <label for="productWeight">가공품 1개당 무게 (LT)</label>
-                <input id="productWeight" class="readonly" type="text" readonly>
-            </div>
-            <div class="field">
-                <label for="averageOutput">1회 가공 평균 생산량</label>
-                <input id="averageOutput" class="readonly" type="text" readonly>
-            </div>
         </div>
     </section>
 
@@ -351,10 +335,7 @@ const maxWeight = $("maxWeight");
 const weightLimit = $("weightLimit");
 const material = $("material");
 const ownedMaterial = $("ownedMaterial");
-const consumePerProcess = $("consumePerProcess");
 const product = $("product");
-const productWeight = $("productWeight");
-const averageOutput = $("averageOutput");
 const result = $("result");
 
 let timerRemaining = 0;
@@ -604,18 +585,12 @@ function updateMaterialInfo() {
     selectedMaterial = item || null;
 
     if (!item) {
-        consumePerProcess.value = "";
         product.value = "";
-        productWeight.value = "";
-        averageOutput.value = "";
         calculate();
         return;
     }
 
-    consumePerProcess.value = item.processing.consumePerProcess;
     product.value = item.product.name;
-    productWeight.value = item.product.weight;
-    averageOutput.value = item.product.averageOutput;
 
     calculate();
 }
@@ -624,7 +599,7 @@ async function loadMaterials() {
     $("app").classList.add("loading");
 
     try {
-        const response = await fetch("data/materials.csv", {
+        const response = await fetch("materials.csv", {
             cache: "no-cache"
         });
 
