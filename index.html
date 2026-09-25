@@ -599,7 +599,7 @@ async function loadMaterials() {
     $("app").classList.add("loading");
 
     try {
-        const response = await fetch("materials.csv", {
+        const response = await fetch("data/materials.csv", {
             cache: "no-cache"
         });
 
