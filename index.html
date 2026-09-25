@@ -3,1342 +3,906 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>가공 타이머</title>
-
 <style>
     :root {
         --bg: #f3f4f6;
         --card: #ffffff;
-        --text: #202124;
-        --sub-text: #6b7280;
-        --border: #e5e7eb;
-        --input-bg: #ffffff;
-        --accent: #4f46e5;
-        --accent-hover: #4338ca;
-        --accent-light: #eef2ff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #d1d5db;
+        --accent: #2563eb;
+        --danger: #dc2626;
+        --input: #ffffff;
+        --shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.45;
     }
 
     body.dark {
         --bg: #111827;
         --card: #1f2937;
         --text: #f3f4f6;
-        --sub-text: #9ca3af;
-        --border: #374151;
-        --input-bg: #111827;
-        --accent: #818cf8;
-        --accent-hover: #6366f1;
-        --accent-light: #312e81;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            "Noto Sans KR",
-            sans-serif;
-        transition: background 0.2s, color 0.2s;
+        --muted: #9ca3af;
+        --border: #4b5563;
+        --accent: #60a5fa;
+        --danger: #f87171;
+        --input: #111827;
+        --shadow: 0 2px 10px rgba(0,0,0,.25);
     }
 
     .container {
-        width: min(760px, calc(100% - 24px));
-        margin: 0 auto;
-        padding: 16px 0 24px;
+        width: min(720px, calc(100% - 24px));
+        margin: 16px auto 24px;
     }
 
-    /* Header */
-
-    .header {
+    header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 10px;
     }
 
-    .title {
-        margin: 0;
+    h1 {
         font-size: 20px;
-        font-weight: 700;
+        margin: 0;
     }
 
-    .theme-button {
+    button {
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .theme-btn {
         border: 1px solid var(--border);
         background: var(--card);
         color: var(--text);
         border-radius: 8px;
-        padding: 7px 10px;
-        cursor: pointer;
-        font-size: 12px;
+        padding: 6px 10px;
     }
-
-    /* Card */
 
     .card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 10px;
         padding: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        box-shadow: var(--shadow);
     }
 
     .card-title {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
-        margin-bottom: 9px;
+        margin-bottom: 8px;
     }
-
-    /* Grid */
 
     .grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 10px;
     }
 
-    .field label {
+    .field {
+        min-width: 0;
+    }
+
+    label {
         display: block;
-        color: var(--sub-text);
-        font-size: 11px;
-        margin-bottom: 4px;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 3px;
     }
 
-    input,
-    select {
+    input, select {
         width: 100%;
-        height: 36px;
-        padding: 0 8px;
-
+        height: 34px;
+        padding: 5px 8px;
         border: 1px solid var(--border);
-        border-radius: 7px;
-
-        background: var(--input-bg);
+        border-radius: 6px;
+        background: var(--input);
         color: var(--text);
-
+        font: inherit;
         font-size: 13px;
-        outline: none;
     }
 
-    input:focus,
-    select:focus {
+    input:focus, select:focus {
+        outline: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
         border-color: var(--accent);
     }
 
-    input[readonly] {
-        opacity: 0.75;
+    .readonly {
+        background: color-mix(in srgb, var(--bg) 65%, var(--card));
     }
 
-    /* Calculation result */
+    .full {
+        grid-column: 1 / -1;
+    }
 
     details {
-        font-size: 12px;
+        margin-bottom: 10px;
     }
 
     summary {
         cursor: pointer;
+        font-size: 14px;
         font-weight: 700;
-        list-style: none;
         user-select: none;
     }
 
-    summary::-webkit-details-marker {
-        display: none;
-    }
-
-    summary::after {
-        content: "＋";
-        float: right;
-        color: var(--sub-text);
-    }
-
-    details[open] summary::after {
-        content: "－";
-    }
-
-    .result {
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px 14px;
         margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid var(--border);
-
-        color: var(--sub-text);
-        line-height: 1.8;
     }
 
-    .result strong {
-        color: var(--text);
+    .result-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px solid var(--border);
+        padding: 5px 0;
+        font-size: 12px;
     }
 
-    .result-note {
-        margin-top: 6px;
-        font-size: 11px;
-        line-height: 1.5;
+    .result-row span:first-child {
+        color: var(--muted);
     }
 
-    /* Timer */
+    .result-row strong {
+        text-align: right;
+    }
+
+    .notice {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--accent) 10%, var(--card));
+        font-size: 12px;
+    }
+
+    .error {
+        color: var(--danger);
+        background: color-mix(in srgb, var(--danger) 10%, var(--card));
+    }
 
     .timer-card {
         text-align: center;
-        padding: 14px 12px 15px;
-    }
-
-    .timer-label {
-        color: var(--sub-text);
-        font-size: 11px;
-        margin-bottom: 2px;
     }
 
     .timer {
-        font-size: 46px;
-        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+        font-size: clamp(40px, 11vw, 64px);
         font-weight: 700;
         letter-spacing: 1px;
-
-        font-variant-numeric: tabular-nums;
-
-        margin: 2px 0 11px;
+        line-height: 1.1;
+        margin: 6px 0 10px;
     }
 
     .timer-buttons {
         display: flex;
         justify-content: center;
-        gap: 7px;
+        gap: 6px;
     }
 
-    .timer-button {
+    .timer-buttons button {
+        min-width: 72px;
         border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 7px 12px;
         background: var(--card);
         color: var(--text);
-
-        border-radius: 7px;
-        padding: 7px 17px;
-
-        font-size: 12px;
-        cursor: pointer;
     }
 
-    .timer-button:hover {
-        background: var(--bg);
-    }
-
-    .timer-button.primary {
+    .timer-buttons .primary {
         background: var(--accent);
-        border-color: var(--accent);
         color: white;
+        border-color: var(--accent);
     }
 
-    .timer-button.primary:hover {
-        background: var(--accent-hover);
+    .timer-status {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 6px;
+        min-height: 16px;
     }
 
-    .timer-note {
-        margin-top: 8px;
-        color: var(--sub-text);
-        font-size: 10px;
+    .loading {
+        opacity: .65;
+        pointer-events: none;
     }
 
-    /* Mobile */
+    @media (max-width: 520px) {
+        .grid, .result-grid {
+            grid-template-columns: 1fr;
+        }
 
-    @media (max-width: 560px) {
         .container {
-            width: calc(100% - 16px);
-            padding-top: 10px;
+            width: min(100% - 16px, 720px);
+            margin-top: 8px;
         }
 
-        .grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .timer {
-            font-size: 40px;
+        .card {
+            padding: 10px;
         }
     }
 </style>
 </head>
-
 <body>
-
-<div class="container">
-
-    <!-- Header -->
-
-    <div class="header">
-        <h1 class="title">가공 타이머</h1>
-
-        <button
-            class="theme-button"
-            id="themeButton"
-            onclick="toggleTheme()"
-        >
-            ☾ 다크 모드
-        </button>
-    </div>
-
-
-    <!-- 가공 설정 -->
+<div class="container" id="app">
+    <header>
+        <h1>가공 타이머</h1>
+        <button class="theme-btn" id="themeBtn" type="button">☾ 다크 모드</button>
+    </header>
 
     <section class="card">
-
-        <div class="card-title">
-            가공 설정
-        </div>
-
+        <div class="card-title">가공 설정</div>
         <div class="grid">
-
             <div class="field">
-                <label>1회당 가공횟수</label>
-
-                <input
-                    id="processCount"
-                    type="number"
-                    min="1"
-                    value="260"
-                >
+                <label for="processCount">1회당 가공횟수</label>
+                <input id="processCount" type="number" min="1" step="1" value="260">
             </div>
-
-
             <div class="field">
-                <label>1회당 시간 (초)</label>
-
-                <input
-                    id="processTime"
-                    type="number"
-                    min="1"
-                    value="60"
-                >
+                <label for="processTime">1회당 시간 (초)</label>
+                <input id="processTime" type="number" min="0.1" step="0.1" value="60">
             </div>
-
-
             <div class="field">
-                <label>가공 성공률 (%)</label>
-
-                <input
-                    id="successRate"
-                    type="number"
-                    min="0.01"
-                    max="100"
-                    step="0.1"
-                    value="100"
-                >
+                <label for="successRate">가공 성공률 (%)</label>
+                <input id="successRate" type="number" min="0.01" max="100" step="0.01" value="100">
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- 무게 -->
-
     <section class="card">
-
-        <div class="card-title">
-            무게
-        </div>
-
+        <div class="card-title">무게</div>
         <div class="grid">
-
             <div class="field">
-                <label>현재 무게 (LT)</label>
-
-                <input
-                    id="currentWeight"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value="748.4"
-                >
+                <label for="currentWeight">현재 무게 (LT)</label>
+                <input id="currentWeight" type="number" min="0" step="0.1" value="748.4">
             </div>
-
-
             <div class="field">
-                <label>최대 무게 (LT)</label>
-
-                <input
-                    id="maxWeight"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value="1502"
-                >
+                <label for="maxWeight">최대 무게 (LT)</label>
+                <input id="maxWeight" type="number" min="0" step="0.1" value="1502">
             </div>
-
-
-            <div class="field">
-                <label>무게 제한</label>
-
+            <div class="field full">
+                <label for="weightLimit">무게 제한</label>
                 <select id="weightLimit">
-
                     <option value="1">100%</option>
                     <option value="1.05">105%</option>
-                    <option value="1.10">110%</option>
+                    <option value="1.1" selected>110%</option>
                     <option value="1.15">115%</option>
-                    <option value="1.20">120%</option>
-                    <option value="1.25" selected>125%</option>
-
+                    <option value="1.2">120%</option>
+                    <option value="1.25">125%</option>
                 </select>
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- 원재료 -->
-
     <section class="card">
-
-        <div class="card-title">
-            원재료
-        </div>
-
+        <div class="card-title">원재료</div>
         <div class="grid">
-
             <div class="field">
-                <label>원재료</label>
-
-                <select id="material">
-
-                    <option value="iron_ore">
-                        철광석
-                    </option>
-
+                <label for="material">원재료</label>
+                <select id="material" disabled>
+                    <option>데이터 불러오는 중...</option>
                 </select>
             </div>
-
-
             <div class="field">
-                <label>보유 갯수</label>
-
-                <input
-                    id="ownedMaterial"
-                    type="number"
-                    min="0"
-                    value="29636"
-                >
+                <label for="ownedMaterial">보유 갯수</label>
+                <input id="ownedMaterial" type="number" min="0" step="1" value="29636">
             </div>
-
-
             <div class="field">
-                <label>가공품</label>
-
-                <input
-                    id="product"
-                    type="text"
-                    readonly
-                >
+                <label for="consumePerProcess">1회 가공시 소모 수</label>
+                <input id="consumePerProcess" class="readonly" type="text" readonly>
             </div>
-
+            <div class="field">
+                <label for="product">가공품</label>
+                <input id="product" class="readonly" type="text" readonly>
+            </div>
+            <div class="field">
+                <label for="productWeight">가공품 1개당 무게 (LT)</label>
+                <input id="productWeight" class="readonly" type="text" readonly>
+            </div>
+            <div class="field">
+                <label for="averageOutput">1회 가공 평균 생산량</label>
+                <input id="averageOutput" class="readonly" type="text" readonly>
+            </div>
         </div>
-
     </section>
 
-
-    <!-- 계산 결과 -->
-
-    <section class="card">
-
-        <details>
-
-            <summary>
-                계산 결과 보기
-            </summary>
-
-            <div
-                class="result"
-                id="result"
-            ></div>
-
-        </details>
-
-    </section>
-
-
-    <!-- Timer -->
+    <details class="card" id="resultDetails">
+        <summary>계산 결과</summary>
+        <div id="result"></div>
+    </details>
 
     <section class="card timer-card">
-
-        <div class="timer-label">
-            예상 가공 시간
-        </div>
-
-        <div
-            class="timer"
-            id="timer"
-        >
-            00:00
-        </div>
-
-
+        <div class="card-title">타이머</div>
+        <div class="timer" id="timer">00:00</div>
         <div class="timer-buttons">
-
-            <button
-                class="timer-button primary"
-                id="startButton"
-            >
-                시작
-            </button>
-
-            <button
-                class="timer-button"
-                id="stopButton"
-            >
-                정지
-            </button>
-
-            <button
-                class="timer-button"
-                id="resetButton"
-            >
-                초기화
-            </button>
-
+            <button class="primary" id="startBtn" type="button">시작</button>
+            <button id="stopBtn" type="button">정지</button>
+            <button id="resetBtn" type="button">초기화</button>
         </div>
-
-
-        <div class="timer-note">
-            성공률이 100% 미만이면 평균 예상 시간을 기준으로 합니다.
-        </div>
-
+        <div class="timer-status" id="timerStatus"></div>
     </section>
-
 </div>
 
-
 <script>
+"use strict";
 
-/* =========================================================
-   가공 데이터
-   ========================================================= */
+let MATERIALS = [];
+let selectedMaterial = null;
 
-const MATERIALS = {
+const $ = (id) => document.getElementById(id);
 
-    iron_ore: {
+const processCount = $("processCount");
+const processTime = $("processTime");
+const successRate = $("successRate");
+const currentWeight = $("currentWeight");
+const maxWeight = $("maxWeight");
+const weightLimit = $("weightLimit");
+const material = $("material");
+const ownedMaterial = $("ownedMaterial");
+const consumePerProcess = $("consumePerProcess");
+const product = $("product");
+const productWeight = $("productWeight");
+const averageOutput = $("averageOutput");
+const result = $("result");
 
-        name: "철광석",
-
-        // 1회 가공 시 1개의 원재료가 몇 개 필요한가
-        consumePerProcess: 5,
-
-        // 가공 결과물
-        product: "녹아내린 철 조각",
-
-        // 가공품 1개의 무게
-        productWeight: 0.3
-
-    }
-
-};
-
-
-/*
-    한 번의 개별 가공 성공 시 평균 생산량
-
-    게임에서 1~4개가 나오는 것으로 확인되었으나
-    계산에서는 평균 2개를 사용
-*/
-
-const AVERAGE_OUTPUT = 2;
-
-
-/* =========================================================
-   DOM
-   ========================================================= */
-
-const processCount =
-    document.getElementById("processCount");
-
-const processTime =
-    document.getElementById("processTime");
-
-const successRate =
-    document.getElementById("successRate");
-
-const currentWeight =
-    document.getElementById("currentWeight");
-
-const maxWeight =
-    document.getElementById("maxWeight");
-
-const weightLimit =
-    document.getElementById("weightLimit");
-
-const material =
-    document.getElementById("material");
-
-const ownedMaterial =
-    document.getElementById("ownedMaterial");
-
-const product =
-    document.getElementById("product");
-
-const result =
-    document.getElementById("result");
-
-const timer =
-    document.getElementById("timer");
-
-
-/* =========================================================
-   계산
-   ========================================================= */
-
-let expectedTimeSeconds = 0;
-
-let remainingTime = 0;
-
-let timerInterval = null;
-
+let timerRemaining = 0;
+let timerDuration = 0;
 let timerRunning = false;
+let timerStartedAt = 0;
+let timerBaseRemaining = 0;
+let timerAnimationFrame = null;
+let alarmPlayed = false;
 
-
-/*
-    숫자 표시
-*/
-
-function formatNumber(value) {
-
-    return Number(value).toLocaleString(
-        "ko-KR",
-        {
-            maximumFractionDigits: 2
-        }
-    );
-
+function parseNumber(input) {
+    const value = Number(input.value);
+    return Number.isFinite(value) ? value : 0;
 }
 
-
-/*
-    시간을
-
-    08:30
-    01:08:30
-
-    형태로 표시
-*/
+function formatNumber(value, maxDigits = 2) {
+    if (!Number.isFinite(value)) return "-";
+    return value.toLocaleString("ko-KR", {
+        maximumFractionDigits: maxDigits
+    });
+}
 
 function formatTime(seconds) {
+    seconds = Math.max(0, Math.ceil(seconds));
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
 
-    seconds = Math.max(
-        0,
-        Math.ceil(seconds)
-    );
-
-    const hours =
-        Math.floor(seconds / 3600);
-
-    const minutes =
-        Math.floor(
-            (seconds % 3600) / 60
-        );
-
-    const secs =
-        seconds % 60;
-
-
-    if (hours > 0) {
-
-        return (
-            String(hours).padStart(2, "0")
-            + ":"
-            + String(minutes).padStart(2, "0")
-            + ":"
-            + String(secs).padStart(2, "0")
-        );
-
+    if (h > 0) {
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
 
-
-    return (
-        String(minutes).padStart(2, "0")
-        + ":"
-        + String(secs).padStart(2, "0")
-    );
-
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+function updateTimerDisplay() {
+    $("timer").textContent = formatTime(timerRemaining);
+}
 
-/*
-    계산 실행
-*/
+function resetTimerToCalculation() {
+    timerDuration = calculate(false);
+    timerRemaining = timerDuration;
+    timerRunning = false;
+    alarmPlayed = false;
 
-function calculate() {
+    if (timerAnimationFrame !== null) {
+        cancelAnimationFrame(timerAnimationFrame);
+        timerAnimationFrame = null;
+    }
 
-    const count =
-        Number(processCount.value);
+    updateTimerDisplay();
+    $("timerStatus").textContent = timerDuration > 0
+        ? "계산된 예상 시간을 타이머에 적용했습니다."
+        : "";
+}
 
-    const cycleTime =
-        Number(processTime.value);
-
-    const rate =
-        Math.max(
-            0.01,
-            Math.min(
-                100,
-                Number(successRate.value)
-            )
-        ) / 100;
-
-
-    const current =
-        Number(currentWeight.value);
-
-    const max =
-        Number(maxWeight.value);
-
-    const limit =
-        Number(weightLimit.value);
-
-
-    const owned =
-        Number(ownedMaterial.value);
-
-
-    const selectedMaterial =
-        MATERIALS[material.value];
-
-
+function calculate(updateTimer = true) {
     if (!selectedMaterial) {
-
-        return;
-
+        result.innerHTML = `<div class="notice error">원재료 데이터를 불러오지 못했습니다.</div>`;
+        return 0;
     }
 
+    const count = parseNumber(processCount);
+    const cycleTime = parseNumber(processTime);
+    const rate = Math.min(100, Math.max(0.01, parseNumber(successRate))) / 100;
+    const current = parseNumber(currentWeight);
+    const max = parseNumber(maxWeight);
+    const limitRatio = parseNumber(weightLimit);
+    const owned = parseNumber(ownedMaterial);
 
-    /*
-        가공품 이름
-    */
-
-    product.value =
-        selectedMaterial.product;
-
-
-    /*
-        최종 허용 무게
-
-        예:
-        1502 × 125%
-        = 1877.5 LT
-    */
-
-    const finalWeightLimit =
-        max * limit;
-
-
-    /*
-        남은 무게
-    */
-
-    const remainingWeight =
-        Math.max(
-            0,
-            finalWeightLimit - current
-        );
-
-
-    /*
-        성공한 가공 1회에서
-
-        260회 × 평균 2개
-        = 520개
-    */
-
-    const outputPerSuccess =
-        count * AVERAGE_OUTPUT;
-
-
-    /*
-        성공한 가공 1회에서 증가하는 무게
-    */
-
-    const weightIncreasePerSuccess =
-        outputPerSuccess *
-        selectedMaterial.productWeight;
-
-
-    /*
-        성공한 가공 1회에서 소모되는 원재료
-    */
-
-    const materialConsumedPerSuccess =
-        count *
-        selectedMaterial.consumePerProcess;
-
-
-    /*
-        무게 제한까지 필요한 성공 횟수
-
-        중요한 점:
-
-        가공을 먼저 하고
-        그 결과 무게를 확인한다.
-
-        따라서 마지막 가공이
-        제한을 초과하더라도 실행된다.
-
-        → ceil 사용
-    */
-
-    let weightSuccessCycles;
-
-    if (weightIncreasePerSuccess <= 0) {
-
-        weightSuccessCycles = Infinity;
-
-    } else {
-
-        weightSuccessCycles =
-            Math.ceil(
-                remainingWeight /
-                weightIncreasePerSuccess
-            );
-
-    }
-
-
-    /*
-        보유 원재료로 가능한 성공 횟수
-
-        한 번의 완전한 가공에 필요한
-        원재료가 부족하면 해당 가공은
-        수행할 수 없다고 가정한다.
-
-        → floor 사용
-    */
-
-    let materialSuccessCycles;
-
-    if (materialConsumedPerSuccess <= 0) {
-
-        materialSuccessCycles = 0;
-
-    } else {
-
-        materialSuccessCycles =
-            Math.floor(
-                owned /
-                materialConsumedPerSuccess
-            );
-
-    }
-
-
-    /*
-        실제로 필요한 성공 횟수
-
-        무게와 원재료 중
-        먼저 도달하는 쪽
-    */
-
-    const requiredSuccessCycles =
-        Math.min(
-            weightSuccessCycles,
-            materialSuccessCycles
-        );
-
-
-    /*
-        성공률이 100%라면
-
-        성공 횟수 × 1회 시간
-
-        성공률이 70%라면
-
-        성공 횟수 ÷ 0.7 × 1회 시간
-
-        을 평균 예상 시간으로 사용
-    */
+    const consume = Number(selectedMaterial.processing.consumePerProcess);
+    const pWeight = Number(selectedMaterial.product.weight);
+    const avgOutput = Number(selectedMaterial.product.averageOutput);
 
     if (
-        !Number.isFinite(requiredSuccessCycles) ||
-        requiredSuccessCycles <= 0
+        count <= 0 ||
+        cycleTime <= 0 ||
+        max < 0 ||
+        current < 0 ||
+        owned < 0 ||
+        consume <= 0 ||
+        pWeight < 0 ||
+        avgOutput < 0
     ) {
-
-        expectedTimeSeconds = 0;
-
-    } else {
-
-        expectedTimeSeconds =
-            (
-                requiredSuccessCycles /
-                rate
-            ) *
-            cycleTime;
-
+        result.innerHTML = `<div class="notice error">입력값을 확인해주세요.</div>`;
+        return 0;
     }
 
+    const finalWeightLimit = max * limitRatio;
+    const remainingWeight = Math.max(0, finalWeightLimit - current);
 
-    /*
-        타이머 갱신
-    */
+    // 성공한 가공 1회(= processCount개의 개별 가공)에서 생산되는 평균 수량
+    const outputPerSuccess = count * avgOutput;
 
-    remainingTime =
-        expectedTimeSeconds;
+    // 성공 1회가 끝난 뒤 증가하는 무게
+    const weightIncreasePerSuccess = outputPerSuccess * pWeight;
 
-    timer.textContent =
-        formatTime(remainingTime);
+    // 성공 1회에 필요한 원재료
+    const materialConsumedPerSuccess = count * consume;
 
+    // 게임은 가공 사이클을 완료한 뒤 무게를 확인하므로 ceil을 사용
+    const weightSuccessCycles =
+        weightIncreasePerSuccess > 0
+            ? Math.ceil(remainingWeight / weightIncreasePerSuccess)
+            : Infinity;
 
-    /*
-        종료 원인
-    */
+    // 마지막 사이클 전체를 수행할 수 있을 만큼의 재료가 필요하다고 가정
+    const materialSuccessCycles =
+        materialConsumedPerSuccess > 0
+            ? Math.floor(owned / materialConsumedPerSuccess)
+            : Infinity;
 
-    let reason;
-
-    if (
-        weightSuccessCycles <=
+    const requiredSuccessCycles = Math.min(
+        weightSuccessCycles,
         materialSuccessCycles
-    ) {
+    );
 
-        reason = "무게 제한";
-
-    } else {
-
-        reason = "원재료 소진";
-
+    if (!Number.isFinite(requiredSuccessCycles)) {
+        result.innerHTML = `<div class="notice error">계산할 수 없는 입력값입니다.</div>`;
+        return 0;
     }
 
+    if (requiredSuccessCycles <= 0) {
+        result.innerHTML = `
+            <div class="notice error">
+                현재 조건에서는 성공 가공을 1회도 수행할 수 없습니다.
+                ${remainingWeight <= 0 ? "이미 무게 제한에 도달했습니다." : "원재료가 부족합니다."}
+            </div>
+        `;
+        if (updateTimer) {
+            timerDuration = 0;
+            timerRemaining = 0;
+            updateTimerDisplay();
+        }
+        return 0;
+    }
 
-    /*
-        예상 최종 무게
+    // 성공률이 100%가 아니면 필요한 성공 횟수 / 성공률로 평균 시도 횟수를 계산
+    const expectedAttempts = requiredSuccessCycles / rate;
+    const expectedTime = expectedAttempts * cycleTime;
 
-        성공 횟수만큼 실제 가공이
-        성공한다고 가정한 평균값
-    */
-
+    const expectedOutput = requiredSuccessCycles * outputPerSuccess;
     const expectedFinalWeight =
-        current +
-        (
-            requiredSuccessCycles *
-            weightIncreasePerSuccess
-        );
+        current + requiredSuccessCycles * weightIncreasePerSuccess;
 
+    const limitingReason =
+        weightSuccessCycles <= materialSuccessCycles
+            ? "무게 제한"
+            : "원재료 소진";
 
-    /*
-        예상 생산량
-    */
-
-    const expectedOutput =
-        requiredSuccessCycles *
-        outputPerSuccess;
-
-
-    /*
-        계산 결과
-    */
+    const timeLabel = rate < 1
+        ? "평균 예상 시간"
+        : "예상 시간";
 
     result.innerHTML = `
-
-        최종 무게 제한:
-        <strong>
-            ${formatNumber(finalWeightLimit)} LT
-        </strong>
-        <br>
-
-        1회 성공 시 생산량:
-        <strong>
-            ${formatNumber(outputPerSuccess)}개
-        </strong>
-        <br>
-
-        1회 성공 시 무게 증가:
-        <strong>
-            ${formatNumber(weightIncreasePerSuccess)} LT
-        </strong>
-        <br>
-
-        1회 성공 시 원재료 소모:
-        <strong>
-            ${formatNumber(materialConsumedPerSuccess)}개
-        </strong>
-        <br>
-
-        필요한 성공 횟수:
-        <strong>
-            ${formatNumber(requiredSuccessCycles)}회
-        </strong>
-        <br>
-
-        예상 생산량:
-        <strong>
-            ${formatNumber(expectedOutput)}개
-        </strong>
-        <br>
-
-        예상 최종 무게:
-        <strong>
-            ${formatNumber(expectedFinalWeight)} LT
-        </strong>
-        <br>
-
-        평균 예상 시간:
-        <strong>
-            ${formatTime(expectedTimeSeconds)}
-        </strong>
-        <br>
-
-        종료 원인:
-        <strong>
-            ${reason}
-        </strong>
-
-        <div class="result-note">
-
-            ※ 실패한 가공은 시간만 소모하며
-            원재료와 가공품에는 영향을 주지 않습니다.
-            <br>
-
-            ※ 무게는 가공품이 생성된 이후 확인합니다.
-
+        <div class="result-grid">
+            <div class="result-row">
+                <span>최종 무게 제한</span>
+                <strong>${formatNumber(finalWeightLimit)} LT</strong>
+            </div>
+            <div class="result-row">
+                <span>가공품</span>
+                <strong>${escapeHtml(selectedMaterial.product.name)}</strong>
+            </div>
+            <div class="result-row">
+                <span>1회 성공 생산량</span>
+                <strong>${formatNumber(outputPerSuccess)}개</strong>
+            </div>
+            <div class="result-row">
+                <span>1회 성공 무게 증가</span>
+                <strong>+${formatNumber(weightIncreasePerSuccess)} LT</strong>
+            </div>
+            <div class="result-row">
+                <span>1회 성공 원재료 소모</span>
+                <strong>${formatNumber(materialConsumedPerSuccess)}개</strong>
+            </div>
+            <div class="result-row">
+                <span>무게 기준 성공 횟수</span>
+                <strong>${formatNumber(weightSuccessCycles, 0)}회</strong>
+            </div>
+            <div class="result-row">
+                <span>재료 기준 성공 횟수</span>
+                <strong>${formatNumber(materialSuccessCycles, 0)}회</strong>
+            </div>
+            <div class="result-row">
+                <span>실제 종료 기준</span>
+                <strong>${limitingReason}</strong>
+            </div>
+            <div class="result-row">
+                <span>필요 성공 횟수</span>
+                <strong>${formatNumber(requiredSuccessCycles, 0)}회</strong>
+            </div>
+            <div class="result-row">
+                <span>예상 시도 횟수</span>
+                <strong>${formatNumber(expectedAttempts)}회</strong>
+            </div>
+            <div class="result-row">
+                <span>예상 생산량</span>
+                <strong>${formatNumber(expectedOutput)}개</strong>
+            </div>
+            <div class="result-row">
+                <span>예상 종료 무게</span>
+                <strong>${formatNumber(expectedFinalWeight)} LT</strong>
+            </div>
         </div>
-
+        <div class="notice">
+            <strong>${timeLabel}: ${formatTime(expectedTime)}</strong>
+            ${rate < 1 ? "<br>성공 실패 여부에 따라 실제 소요 시간은 달라질 수 있습니다." : ""}
+        </div>
+        <div class="notice">
+            실패한 가공 사이클은 원재료와 가공품에 영향을 주지 않고 시간만 소비하는 것으로 계산했습니다.
+            가공 성공 후 결과물이 생성된 다음 무게 제한을 확인하는 방식입니다.
+        </div>
     `;
 
-}
+    if (updateTimer) {
+        timerDuration = expectedTime;
+        timerRemaining = expectedTime;
+        timerRunning = false;
+        alarmPlayed = false;
 
-
-/* =========================================================
-   타이머
-   ========================================================= */
-
-
-/*
-    시작
-*/
-
-document
-    .getElementById("startButton")
-    .addEventListener(
-        "click",
-        startTimer
-    );
-
-
-function startTimer() {
-
-    if (timerRunning) {
-
-        return;
-
-    }
-
-
-    if (remainingTime <= 0) {
-
-        remainingTime =
-            expectedTimeSeconds;
-
-    }
-
-
-    if (remainingTime <= 0) {
-
-        return;
-
-    }
-
-
-    timerRunning = true;
-
-
-    const startTime =
-        performance.now();
-
-    const initialTime =
-        remainingTime;
-
-
-    timerInterval =
-        setInterval(
-            () => {
-
-                const elapsed =
-                    (
-                        performance.now() -
-                        startTime
-                    ) / 1000;
-
-
-                remainingTime =
-                    Math.max(
-                        0,
-                        initialTime - elapsed
-                    );
-
-
-                timer.textContent =
-                    formatTime(remainingTime);
-
-
-                /*
-                    종료
-                */
-
-                if (remainingTime <= 0) {
-
-                    stopTimer(false);
-
-                    playAlarm();
-
-                }
-
-            },
-            100
-        );
-
-}
-
-
-/*
-    정지
-*/
-
-document
-    .getElementById("stopButton")
-    .addEventListener(
-        "click",
-        () => {
-
-            stopTimer(false);
-
+        if (timerAnimationFrame !== null) {
+            cancelAnimationFrame(timerAnimationFrame);
+            timerAnimationFrame = null;
         }
-    );
 
-
-function stopTimer(reset) {
-
-    if (timerInterval !== null) {
-
-        clearInterval(
-            timerInterval
-        );
-
-        timerInterval = null;
-
+        updateTimerDisplay();
+        $("timerStatus").textContent = rate < 1
+            ? "성공률을 반영한 평균 예상 시간이 적용되었습니다."
+            : "계산된 예상 시간이 적용되었습니다.";
     }
 
-
-    timerRunning = false;
-
-
-    if (reset) {
-
-        remainingTime =
-            expectedTimeSeconds;
-
-        timer.textContent =
-            formatTime(
-                remainingTime
-            );
-
-    }
-
+    return expectedTime;
 }
 
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
 
-/*
-    초기화
-*/
+function updateMaterialInfo() {
+    const item = MATERIALS.find(m => m.id === material.value);
+    selectedMaterial = item || null;
 
-document
-    .getElementById("resetButton")
-    .addEventListener(
-        "click",
-        () => {
+    if (!item) {
+        consumePerProcess.value = "";
+        product.value = "";
+        productWeight.value = "";
+        averageOutput.value = "";
+        calculate();
+        return;
+    }
 
-            stopTimer(true);
+    consumePerProcess.value = item.processing.consumePerProcess;
+    product.value = item.product.name;
+    productWeight.value = item.product.weight;
+    averageOutput.value = item.product.averageOutput;
 
-        }
-    );
+    calculate();
+}
 
-
-/* =========================================================
-   알림음
-   ========================================================= */
-
-function playAlarm() {
+async function loadMaterials() {
+    $("app").classList.add("loading");
 
     try {
+        const response = await fetch("data/materials.csv", {
+            cache: "no-cache"
+        });
 
-        const AudioContext =
-            window.AudioContext ||
-            window.webkitAudioContext;
-
-
-        const context =
-            new AudioContext();
-
-
-        /*
-            3번 울리는 간단한 알림음
-        */
-
-        for (
-            let i = 0;
-            i < 3;
-            i++
-        ) {
-
-            const oscillator =
-                context.createOscillator();
-
-            const gain =
-                context.createGain();
-
-
-            oscillator.type =
-                "sine";
-
-            oscillator.frequency.value =
-                880;
-
-
-            gain.gain.value =
-                0.08;
-
-
-            oscillator.connect(
-                gain
-            );
-
-            gain.connect(
-                context.destination
-            );
-
-
-            const start =
-                context.currentTime +
-                i * 0.55;
-
-
-            oscillator.start(start);
-
-            oscillator.stop(
-                start + 0.3
-            );
-
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
 
+        const csvText = await response.text();
+        MATERIALS = parseCSV(csvText);
+
+        if (MATERIALS.length === 0) {
+            throw new Error("CSV에 데이터가 없습니다.");
+        }
+
+        material.innerHTML = "";
+
+        for (const item of MATERIALS) {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.name;
+            material.appendChild(option);
+        }
+
+        material.disabled = false;
+        updateMaterialInfo();
     } catch (error) {
+        console.error(error);
+        material.innerHTML = `<option>데이터 불러오기 실패</option>`;
+        material.disabled = true;
 
-        console.log(
-            "알림음을 재생할 수 없습니다.",
-            error
-        );
-
+        result.innerHTML = `
+            <div class="notice error">
+                <strong>materials.csv를 불러오지 못했습니다.</strong><br>
+                <small>
+                    GitHub Pages에서는 정상적으로 동작합니다.
+                    로컬에서 index.html을 직접 열었다면 브라우저 보안 정책 때문에 CSV를 읽지 못할 수 있습니다.
+                </small>
+            </div>
+        `;
+    } finally {
+        $("app").classList.remove("loading");
     }
-
 }
-
-
-/* =========================================================
-   다크 모드
-   ========================================================= */
-
-function toggleTheme() {
-
-    document.body.classList.toggle(
-        "dark"
-    );
-
-
-    const dark =
-        document.body.classList.contains(
-            "dark"
-        );
-
-
-    const button =
-        document.getElementById(
-            "themeButton"
-        );
-
-
-    if (dark) {
-
-        button.textContent =
-            "☀ 라이트 모드";
-
-        localStorage.setItem(
-            "darkMode",
-            "true"
-        );
-
-    } else {
-
-        button.textContent =
-            "☾ 다크 모드";
-
-        localStorage.setItem(
-            "darkMode",
-            "false"
-        );
-
-    }
-
-}
-
 
 /*
-    저장된 다크 모드 적용
-*/
+ * CSV 파서
+ * - 쉼표가 들어간 값
+ * - 큰따옴표로 감싼 값
+ * - 큰따옴표 안의 큰따옴표("")
+ * 를 처리할 수 있도록 직접 파싱합니다.
+ */
+function parseCSV(text) {
+    text = text.replace(/^\uFEFF/, "");
 
-if (
-    localStorage.getItem(
-        "darkMode"
-    ) === "true"
-) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let inQuotes = false;
 
-    document.body.classList.add(
-        "dark"
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (char === '"') {
+            if (inQuotes && next === '"') {
+                field += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === "," && !inQuotes) {
+            row.push(field);
+            field = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+            if (char === "\r" && next === "\n") i++;
+            row.push(field);
+            field = "";
+
+            if (row.some(value => value.trim() !== "")) {
+                rows.push(row);
+            }
+
+            row = [];
+        } else {
+            field += char;
+        }
+    }
+
+    if (field !== "" || row.length > 0) {
+        row.push(field);
+        if (row.some(value => value.trim() !== "")) {
+            rows.push(row);
+        }
+    }
+
+    if (rows.length < 2) return [];
+
+    const headers = rows[0].map(h => h.trim());
+
+    return rows.slice(1).map(values => {
+        const data = {};
+        headers.forEach((header, index) => {
+            data[header] = (values[index] ?? "").trim();
+        });
+
+        return {
+            id: data.id,
+            name: data["원재료"],
+            processing: {
+                consumePerProcess: Number(data["1회 가공 소모"])
+            },
+            product: {
+                name: data["가공품"],
+                weight: Number(data["가공품 무게"]),
+                minOutput: Number(data["최소 생산"]),
+                maxOutput: Number(data["최대 생산"]),
+                averageOutput: Number(data["평균 생산"])
+            }
+        };
+    }).filter(item =>
+        item.id &&
+        item.name &&
+        Number.isFinite(item.processing.consumePerProcess) &&
+        item.product.name &&
+        Number.isFinite(item.product.weight) &&
+        Number.isFinite(item.product.averageOutput)
     );
-
-    document.getElementById(
-        "themeButton"
-    ).textContent =
-        "☀ 라이트 모드";
-
 }
 
+function playAlarm() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
 
-/* =========================================================
-   입력값 변경 감지
-   ========================================================= */
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
 
-const inputs = document.querySelectorAll(
-    "input, select"
-);
+        [0, 0.25, 0.5].forEach(offset => {
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
 
+            oscillator.type = "sine";
+            oscillator.frequency.value = 880;
+            gain.gain.setValueAtTime(0.0001, now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.2, now + offset + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.16);
 
-inputs.forEach(
-    element => {
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
 
-        element.addEventListener(
-            "input",
-            calculate
-        );
-
-        element.addEventListener(
-            "change",
-            calculate
-        );
-
+            oscillator.start(now + offset);
+            oscillator.stop(now + offset + 0.18);
+        });
+    } catch (error) {
+        console.warn("알람 재생 실패:", error);
     }
-);
+}
 
+function timerLoop(timestamp) {
+    if (!timerRunning) return;
 
-/* =========================================================
-   최초 계산
-   ========================================================= */
+    const elapsed = (timestamp - timerStartedAt) / 1000;
+    timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
 
-calculate();
+    updateTimerDisplay();
 
+    if (timerRemaining <= 0) {
+        timerRunning = false;
+        timerRemaining = 0;
+        updateTimerDisplay();
+        $("timerStatus").textContent = "완료!";
+        if (!alarmPlayed) {
+            alarmPlayed = true;
+            playAlarm();
+        }
+        timerAnimationFrame = null;
+        return;
+    }
+
+    timerAnimationFrame = requestAnimationFrame(timerLoop);
+}
+
+function startTimer() {
+    if (timerRunning) return;
+
+    if (timerRemaining <= 0) {
+        timerRemaining = timerDuration;
+    }
+
+    if (timerRemaining <= 0) {
+        $("timerStatus").textContent = "먼저 계산 가능한 조건을 입력해주세요.";
+        return;
+    }
+
+    timerRunning = true;
+    alarmPlayed = false;
+    timerBaseRemaining = timerRemaining;
+    timerStartedAt = performance.now();
+
+    $("timerStatus").textContent = "타이머 실행 중...";
+    timerAnimationFrame = requestAnimationFrame(timerLoop);
+}
+
+function stopTimer() {
+    if (!timerRunning) return;
+
+    const elapsed = (performance.now() - timerStartedAt) / 1000;
+    timerRemaining = Math.max(0, timerBaseRemaining - elapsed);
+    timerRunning = false;
+
+    if (timerAnimationFrame !== null) {
+        cancelAnimationFrame(timerAnimationFrame);
+        timerAnimationFrame = null;
+    }
+
+    updateTimerDisplay();
+    $("timerStatus").textContent = "일시 정지";
+}
+
+function resetTimer() {
+    timerRunning = false;
+    alarmPlayed = false;
+
+    if (timerAnimationFrame !== null) {
+        cancelAnimationFrame(timerAnimationFrame);
+        timerAnimationFrame = null;
+    }
+
+    timerDuration = calculate(false);
+    timerRemaining = timerDuration;
+    updateTimerDisplay();
+
+    $("timerStatus").textContent = timerDuration > 0
+        ? "타이머를 예상 시간으로 초기화했습니다."
+        : "";
+}
+
+const inputIds = [
+    "processCount",
+    "processTime",
+    "successRate",
+    "currentWeight",
+    "maxWeight",
+    "weightLimit",
+    "ownedMaterial"
+];
+
+inputIds.forEach(id => {
+    $(id).addEventListener("input", () => {
+        if (id === "weightLimit") {
+            calculate();
+        } else {
+            calculate();
+        }
+    });
+
+    $(id).addEventListener("change", calculate);
+});
+
+material.addEventListener("change", updateMaterialInfo);
+
+$("startBtn").addEventListener("click", startTimer);
+$("stopBtn").addEventListener("click", stopTimer);
+$("resetBtn").addEventListener("click", resetTimer);
+
+$("themeBtn").addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("processingTimerDarkMode", isDark ? "1" : "0");
+    $("themeBtn").textContent = isDark ? "☀ 라이트 모드" : "☾ 다크 모드";
+});
+
+if (localStorage.getItem("processingTimerDarkMode") === "1") {
+    document.body.classList.add("dark");
+    $("themeBtn").textContent = "☀ 라이트 모드";
+}
+
+loadMaterials();
 </script>
-
 </body>
 </html>
