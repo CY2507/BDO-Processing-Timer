@@ -1,243 +1,2073 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>가공 타이머</title>
 <link rel="icon" href="icon.ico">
-<style>
-:root{--bg:#f3f4f6;--card:#fff;--text:#202124;--muted:#6b7280;--border:#d9dde3;--input:#fff;--accent:#2563eb}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,sans-serif}
-body.dark{--bg:#111827;--card:#1f2937;--text:#f3f4f6;--muted:#9ca3af;--border:#374151;--input:#111827;--accent:#60a5fa}
-.container{width:min(760px,calc(100% - 20px));margin:12px auto}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
-h1{font-size:19px;margin:0}.card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:9px}
-.card-title{font-weight:700;margin-bottom:7px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-label{display:block;color:var(--muted);font-size:12px;margin-bottom:3px}
-input,select,button{width:100%;height:33px;border:1px solid var(--border);border-radius:6px;background:var(--input);color:var(--text);padding:0 8px;font:inherit}
-input:read-only{opacity:.7}button{cursor:pointer;font-weight:600}.primary{background:var(--accent);color:white;border-color:var(--accent)}
-.top{width:auto;padding:0 9px}
-.alarm-grid{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:7px;align-items:end}
-.alarm-preview{width:100%}
-@media(max-width:520px){.alarm-grid{grid-template-columns:1fr}}
-.timer{text-align:center}.timer-display{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;margin:2px 0 7px}
-.timer-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:340px;margin:auto}
-.result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 14px;margin-top:8px}
-.row{display:flex;justify-content:space-between;gap:8px}.row span{color:var(--muted)}
-.note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:7px}
-table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:5px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted)}
 
-.search-select{position:relative}
-.search-select-button{display:flex;align-items:center;justify-content:space-between;text-align:left}
-.search-arrow{font-size:10px;color:var(--muted);margin-left:8px}
-.search-select-menu{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--border);border-radius:7px;box-shadow:0 6px 18px rgba(0,0,0,.16);padding:6px}
-.material-search-input{width:100%;margin-bottom:5px}
-.material-options{max-height:220px;overflow-y:auto}
-.material-option{display:block;width:100%;height:32px;border:0;border-radius:5px;background:transparent;color:var(--text);text-align:left;padding:0 8px;cursor:pointer;font:inherit}
-.material-option:hover,.material-option.selected{background:var(--bg)}
-.material-no-result{padding:8px;color:var(--muted);font-size:12px}
-@media(max-width:520px){.grid,.result{grid-template-columns:1fr}}
+<style>
+:root{
+    --bg:#f3f4f6;
+    --card:#ffffff;
+    --text:#222;
+    --sub:#666;
+    --border:#dcdcdc;
+    --input:#ffffff;
+    --button:#222;
+    --button-text:#fff;
+    --accent:#4a6cf7;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Noto Sans KR",
+        sans-serif;
+}
+
+body.dark{
+    --bg:#18191c;
+    --card:#24262a;
+    --text:#f2f2f2;
+    --sub:#aaa;
+    --border:#3a3c40;
+    --input:#303237;
+    --button:#f2f2f2;
+    --button-text:#18191c;
+}
+
+.container{
+    width:min(760px,calc(100% - 24px));
+    margin:24px auto;
+}
+
+header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+}
+
+h1{
+    margin:0;
+    font-size:24px;
+}
+
+.theme-button{
+    width:38px;
+    height:38px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--card);
+    color:var(--text);
+    cursor:pointer;
+    font-size:18px;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:12px;
+}
+
+.card-title{
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+}
+
+label{
+    display:block;
+    font-size:12px;
+    color:var(--sub);
+    margin-bottom:5px;
+}
+
+input,
+select,
+button{
+    font:inherit;
+}
+
+input,
+select{
+    width:100%;
+    height:38px;
+    padding:0 10px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    background:var(--input);
+    color:var(--text);
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:var(--accent);
+}
+
+button{
+    border:0;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+.search-select{
+    position:relative;
+}
+
+.search-select-button{
+    width:100%;
+    height:38px;
+    padding:0 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border:1px solid var(--border);
+    border-radius:7px;
+    background:var(--input);
+    color:var(--text);
+    text-align:left;
+}
+
+.search-arrow{
+    font-size:11px;
+    color:var(--sub);
+}
+
+.search-select-menu{
+    position:absolute;
+    z-index:20;
+    left:0;
+    right:0;
+    top:43px;
+    padding:7px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    box-shadow:0 8px 25px rgba(0,0,0,.15);
+}
+
+.material-search-input{
+    margin-bottom:7px;
+}
+
+.material-options{
+    max-height:220px;
+    overflow:auto;
+}
+
+.material-option{
+    padding:9px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.material-option:hover{
+    background:var(--bg);
+}
+
+.material-option-product{
+    display:block;
+    margin-top:2px;
+    color:var(--sub);
+    font-size:11px;
+}
+
+.readonly{
+    opacity:.8;
+}
+
+.alarm-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 96px;
+    gap:8px;
+    align-items:end;
+}
+
+.alarm-preview{
+    width:100%;
+    height:38px;
+    background:var(--button);
+    color:var(--button-text);
+}
+
+.note{
+    margin-top:7px;
+    min-height:15px;
+    color:var(--sub);
+    font-size:11px;
+}
+
+details summary{
+    cursor:pointer;
+    font-size:14px;
+    font-weight:700;
+}
+
+.result{
+    margin-top:12px;
+}
+
+.result-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding:7px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+
+.result-row:last-child{
+    border-bottom:0;
+}
+
+.result-label{
+    color:var(--sub);
+}
+
+.result-value{
+    text-align:right;
+    font-weight:600;
+}
+
+.data-table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+th,
+td{
+    padding:8px 6px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    white-space:nowrap;
+}
+
+th{
+    color:var(--sub);
+}
+
+.timer-card{
+    text-align:center;
+}
+
+.timer{
+    margin:5px 0 14px;
+}
+
+.timer-display{
+    font-size:42px;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:1px;
+    font-weight:700;
+}
+
+.timer-buttons{
+    display:flex;
+    justify-content:center;
+    gap:7px;
+}
+
+.timer-buttons button{
+    min-width:80px;
+    height:38px;
+    padding:0 14px;
+    background:var(--button);
+    color:var(--button-text);
+}
+
+.timer-buttons button.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+}
+
+.small-note{
+    margin-top:10px;
+    color:var(--sub);
+    font-size:11px;
+}
+
+@media(max-width:600px){
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .grid > div:empty{
+        display:none;
+    }
+
+    .timer-display{
+        font-size:36px;
+    }
+}
+
+@media(max-width:520px){
+    .alarm-grid{
+        grid-template-columns:1fr;
+    }
+}
 </style>
 </head>
+
 <body>
+
 <div class="container">
-<header><h1>가공 타이머</h1><button id="dark" class="top">다크 모드</button></header>
 
+<header>
+    <h1>가공 타이머</h1>
+    <button id="themeToggle" class="theme-button" type="button">☾</button>
+</header>
+
+
+<!-- 스탯 -->
 <section class="card">
-<div class="card-title">스탯</div>
-<div class="grid">
-<div><label>1회당 가공횟수</label><input id="count" type="number" min="1" value="260"></div>
-<div><label>가공 성공률 (%)</label><input id="rate" type="number" min="0" max="100" value="100"></div>
-<div></div>
-</div>
+
+    <div class="card-title">스탯</div>
+
+    <div class="grid">
+
+        <div>
+            <label for="count">1회당 가공횟수</label>
+            <input
+                id="count"
+                type="number"
+                min="1"
+                value="260"
+            >
+        </div>
+
+        <div>
+            <label for="rate">가공 성공률 (%)</label>
+            <input
+                id="rate"
+                type="number"
+                min="0"
+                max="100"
+                value="100"
+            >
+        </div>
+
+        <div></div>
+
+    </div>
+
 </section>
 
+
+<!-- 무게 -->
 <section class="card">
-<div class="card-title">무게</div>
-<div class="grid">
-<div><label>현재 무게 (LT)</label><input id="cur" type="number" min="0" step=".1" value="748.4"></div>
-<div><label>최대 무게 (LT)</label><input id="max" type="number" min="0" step=".1" value="1502"></div>
-<div><label>무게 제한</label><select id="limit"><option value="1">100%</option><option value="1.05">105%</option><option value="1.1" selected>110%</option><option value="1.15">115%</option><option value="1.2">120%</option><option value="1.25">125%</option></select></div>
-</div>
+
+    <div class="card-title">무게</div>
+
+    <div class="grid">
+
+        <div>
+            <label for="cur">현재 무게 (LT)</label>
+            <input
+                id="cur"
+                type="number"
+                min="0"
+                step=".1"
+                value="748.4"
+            >
+        </div>
+
+        <div>
+            <label for="max">최대 무게 (LT)</label>
+            <input
+                id="max"
+                type="number"
+                min="0"
+                step=".1"
+                value="1502"
+            >
+        </div>
+
+        <div>
+            <label for="limit">무게 제한</label>
+            <select id="limit">
+                <option value="1">100%</option>
+                <option value="1.05">105%</option>
+                <option value="1.10">110%</option>
+                <option value="1.15">115%</option>
+                <option value="1.20">120%</option>
+                <option value="1.25" selected>125%</option>
+            </select>
+        </div>
+
+    </div>
+
 </section>
 
+
+<!-- 가공 시작 -->
 <section class="card">
-<div class="card-title">가공 시작</div>
-<div class="grid">
-<div class="material-search-field">
-<label>원재료</label>
-<div class="search-select" id="materialSelect">
-<button type="button" class="search-select-button" id="materialButton" aria-expanded="false">
-<span id="materialSelected">원재료 선택</span><span class="search-arrow">▼</span>
-</button>
-<div class="search-select-menu" id="materialMenu" hidden>
-<input id="materialSearch" class="material-search-input" type="search" placeholder="원재료 검색..." autocomplete="off">
-<div id="materialOptions" class="material-options"></div>
-</div>
-</div>
-</div>
-<div><label>가공품</label><input id="product" readonly></div>
-<div><label>보유 갯수</label><input id="owned" type="number" min="0" value="29636"></div>
-</div>
+
+    <div class="card-title">가공 시작</div>
+
+    <div class="grid">
+
+        <div>
+            <label>원재료</label>
+
+            <div class="search-select" id="materialSelect">
+
+                <button
+                    type="button"
+                    class="search-select-button"
+                    id="materialButton"
+                    aria-expanded="false"
+                >
+                    <span id="materialSelected">
+                        원재료 선택
+                    </span>
+
+                    <span class="search-arrow">▼</span>
+                </button>
+
+                <div
+                    class="search-select-menu"
+                    id="materialMenu"
+                    hidden
+                >
+
+                    <input
+                        id="materialSearch"
+                        class="material-search-input"
+                        type="search"
+                        placeholder="원재료 검색..."
+                        autocomplete="off"
+                    >
+
+                    <div
+                        id="materialOptions"
+                        class="material-options"
+                    ></div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div>
+            <label for="product">가공품</label>
+
+            <input
+                id="product"
+                class="readonly"
+                type="text"
+                readonly
+            >
+        </div>
+
+
+        <div>
+            <label for="owned">보유 갯수</label>
+
+            <input
+                id="owned"
+                type="number"
+                min="0"
+                value="29636"
+            >
+        </div>
+
+    </div>
+
 </section>
 
 
+<!-- 알림 -->
 <section class="card">
-<div class="card-title">알림</div>
-<div class="alarm-grid">
-<div>
-<label for="alarmSelect">알림음</label>
-<select id="alarmSelect"></select>
-</div>
-<div>
-<label>&nbsp;</label>
-<button id="alarmPreview" class="alarm-preview" type="button">▶ 미리듣기</button>
-</div>
-</div>
-<div id="alarmNote" class="note"></div>
+
+    <div class="card-title">알림</div>
+
+    <div class="alarm-grid">
+
+        <div>
+            <label for="alarmSelect">알림음</label>
+
+            <select id="alarmSelect"></select>
+        </div>
+
+        <div>
+            <label>&nbsp;</label>
+
+            <button
+                id="alarmPreview"
+                class="alarm-preview"
+                type="button"
+            >
+                ▶ 미리듣기
+            </button>
+        </div>
+
+    </div>
+
+    <div
+        id="alarmNote"
+        class="note"
+    ></div>
+
 </section>
 
-<section class="card"><details><summary>계산 결과</summary><div id="result" class="result"></div><div id="note" class="note"></div></details></section>
 
-<section class="card"><details><summary>데이터 테이블</summary><div style="overflow:auto;margin-top:7px"><table><thead><tr><th>원재료</th><th>가공품</th><th>가공품 무게</th><th>1회 가공 소모</th><th>1회당 시간</th></tr></thead><tbody id="tbody"></tbody></table></div></details></section>
+<!-- 계산 결과 -->
+<section class="card">
 
-<section class="card timer"><div class="card-title">타이머</div><div id="timer" class="timer-display">00:00</div><div class="timer-buttons"><button id="start" class="primary">시작</button><button id="stop">정지</button><button id="reset">초기화</button></div></section>
+<details>
+
+<summary>계산 결과</summary>
+
+<div
+    id="result"
+    class="result"
+></div>
+
+</details>
+
+</section>
+
+
+<!-- 데이터 테이블 -->
+<section class="card">
+
+<details>
+
+<summary>데이터 테이블</summary>
+
+<div class="data-table-wrap">
+
+<table>
+
+<thead>
+<tr>
+    <th>원재료</th>
+    <th>가공품</th>
+    <th>가공품 무게</th>
+    <th>1회 가공 소모</th>
+    <th>1회당 시간</th>
+</tr>
+</thead>
+
+<tbody id="dataTableBody"></tbody>
+
+</table>
+
 </div>
+
+</details>
+
+</section>
+
+
+<!-- 타이머 -->
+<section class="card timer-card">
+
+<div class="timer">
+
+    <div
+        id="timer"
+        class="timer-display"
+    >
+        00:00
+    </div>
+
+</div>
+
+<div class="timer-buttons">
+
+    <button id="start" type="button">
+        시작
+    </button>
+
+    <button
+        id="stop"
+        class="secondary"
+        type="button"
+    >
+        정지
+    </button>
+
+    <button
+        id="reset"
+        class="secondary"
+        type="button"
+    >
+        초기화
+    </button>
+
+</div>
+
+<div class="small-note">
+    타이머 종료 시 선택한 알림음이 재생됩니다.
+</div>
+
+</section>
+
+</div>
+
 
 <script>
+
 /*
-알림음 파일은 다음 경로에 넣습니다.
-  sounds/alarm1.mp4
-  sounds/alarm2.mp4
-  sounds/alarm3.mp4
-
-새 알림음을 추가하려면 alarmData에 항목을 추가하면 됩니다.
-예:
- {id:"alarm4",name:"알림음 4",file:"sounds/alarm4.mp4"}
+==================================================
+가공 데이터
+==================================================
 */
-/* HTML 내부 게임 데이터: 원재료, 가공품, 가공품 무게, 1회 가공 소모, 1회당 시간 */
+
 const materialData=[
- {raw:"철광석",product:"녹아내린 철 조각",weight:.3,consume:5,time:60},
- {raw:"구리 광석",product:"녹아내린 구리 조각",weight:.25,consume:5,time:60},
- {raw:"주석 광석",product:"녹아내린 주석 조각",weight:.2,consume:5,time:60}
-];
-const AVG=2,$=id=>document.getElementById(id);
-let selected=materialData[0],expected=0,remain=0,running=false,last=0,raf=null;
+    {
+        raw:"철광석",
+        product:"녹아내린 철 조각",
+        weight:0.3,
+        consume:5,
+        time:60
+    },
 
-function fmt(s){s=Math.max(0,Math.ceil(s));let h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`:`${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`}
-function num(x){return Number(x.toFixed(3)).toString()}
-function renderTimer(){$("timer").textContent=fmt(remain);document.title=running?fmt(remain):"가공 타이머"}
-function calculate(){
- let n=Math.max(0,+$("count").value||0),r=Math.min(100,Math.max(0,+$("rate").value||0))/100;
- let cur=Math.max(0,+$("cur").value||0),max=Math.max(0,+$("max").value||0),lim=+( $("limit").value)||1,owned=Math.max(0,+$("owned").value||0);
- let final=max*lim,need=Math.max(0,final-cur),out=n*AVG,inc=out*selected.weight,consume=n*selected.consume;
- let wc=inc>0?Math.ceil(need/inc):Infinity;if(need<=0)wc=0;
- let mc=consume>0?Math.floor(owned/consume):Infinity;
- let success=Math.min(wc,mc),attempt=success===Infinity?0:(r?success/r:Infinity);
- expected=attempt*selected.time;
- if(!running){remain=Number.isFinite(expected)?Math.max(0,expected):0;renderTimer()}
- let reason=wc<=mc?"무게 제한":"원재료 소진",finalW=cur+success*inc;
- const rows=[["무게 제한",num(final)+" LT"],["가공품",selected.product],["1회 성공 시 생산량",num(out)+"개"],["1회 성공 시 무게 증가",num(inc)+" LT"],["1회 성공 시 재료 소모",num(consume)+"개"],["무게 기준 성공 횟수",wc===Infinity?"제한 없음":Math.floor(wc)+"회"],["재료 기준 성공 횟수",mc===Infinity?"제한 없음":mc+"회"],["종료 원인",reason],["필요 성공 횟수",Math.floor(success)+"회"],["예상 시도 횟수",Number.isFinite(attempt)?num(attempt)+"회":"계산 불가"],["예상 생산량",num(success*out)+"개"],["예상 종료 무게",num(finalW)+" LT"],["예상 시간",Number.isFinite(expected)?fmt(expected):"계산 불가"]];
- $("result").innerHTML=rows.map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
- $("note").textContent=r<1?"성공률이 100% 미만이므로 표시 시간은 평균 예상 시간입니다. 실패 회차도 시간은 소모되지만 재료와 생산물은 변하지 않습니다.":"가공품 생성 후 무게를 확인하므로 마지막 가공은 제한을 초과할 수 있습니다.";
-}
-function apply(){selected=materialData[materialIndex]||materialData[0];$("product").value=selected.product;calculate()}
+    {
+        raw:"구리 광석",
+        product:"녹아내린 구리 조각",
+        weight:0.25,
+        consume:5,
+        time:60
+    },
+
+    {
+        raw:"주석 광석",
+        product:"녹아내린 주석 조각",
+        weight:0.2,
+        consume:5,
+        time:60
+    }
+];
+
+
+/*
+평균 생산량
+
+1회 가공마다 평균 2개 생산
+*/
+
+const AVG=2;
+
+
+/*
+==================================================
+알림음 데이터
+==================================================
+*/
+
 const alarmData=[
- {id:"alarm1",name:"알림음 1",file:"sounds/alarm1.mp3"},
- {id:"alarm2",name:"알림음 2",file:"sounds/alarm2.mp3"},
- {id:"alarm3",name:"알림음 3",file:"sounds/alarm3.mp3"},
- {id:"alarm4",name:"알림음 4",file:"sounds/alarm4.mp3"},
- {id:"alarm5",name:"알림음 5",file:"sounds/alarm5.mp3"}
-];
-let alarmAudio=null;
+    {
+        id:"alarm1",
+        name:"알림음 1",
+        file:"sounds/alarm1.mp3"
+    },
 
-function getSelectedAlarm(){
- const id=localStorage.getItem("processingTimerAlarm")||alarmData[0].id;
- return alarmData.find(x=>x.id===id)||alarmData[0];
+    {
+        id:"alarm2",
+        name:"알림음 2",
+        file:"sounds/alarm2.mp3"
+    },
+
+    {
+        id:"alarm3",
+        name:"알림음 3",
+        file:"sounds/alarm3.mp3"
+    },
+
+    {
+        id:"alarm4",
+        name:"알림음 4",
+        file:"sounds/alarm4.mp3"
+    },
+
+    {
+        id:"alarm5",
+        name:"알림음 5",
+        file:"sounds/alarm5.mp3"
+    }
+];
+
+
+/*
+==================================================
+공통 변수
+==================================================
+*/
+
+const $=id=>document.getElementById(id);
+
+let selected=materialData[0];
+
+let expected=0;
+
+let remain=0;
+
+let running=false;
+
+let raf=null;
+
+let startTime=0;
+
+let totalDuration=0;
+
+
+/*
+==================================================
+알림음 변수
+==================================================
+*/
+
+let audioContext=null;
+
+let alarmBuffer=null;
+
+let alarmBufferFile=null;
+
+let scheduledAlarm=null;
+
+
+/*
+==================================================
+유틸
+==================================================
+*/
+
+function fmt(s){
+
+    s=Math.max(0,Math.ceil(s));
+
+    const h=Math.floor(s/3600);
+
+    const m=Math.floor((s%3600)/60);
+
+    const x=s%60;
+
+    if(h){
+
+        return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
+
+    }
+
+    return `${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`;
 }
-function setAlarmAudio(){
- const alarm=getSelectedAlarm();
- if(alarmAudio) alarmAudio.pause();
- alarmAudio=new Audio(alarm.file);
- alarmAudio.preload="auto";
+
+
+/*
+==================================================
+다크 모드
+==================================================
+*/
+
+const savedTheme=localStorage.getItem("processingTimerTheme");
+
+if(savedTheme==="dark"){
+
+    document.body.classList.add("dark");
+
+    $("themeToggle").textContent="☀";
+
 }
-function playAlarm(){
- try{
-  if(!alarmAudio)setAlarmAudio();
-  alarmAudio.currentTime=0;
-  const p=alarmAudio.play();
-  if(p&&p.catch)p.catch(()=>{});
- }catch(e){
-  console.warn("알림음 재생 오류",e);
- }
-}
-function alarm(){playAlarm()}
-function tick(now){if(!running)return;remain=Math.max(0,remain-(now-last)/1000);last=now;renderTimer();if(remain<=0){running=false;cancelAnimationFrame(raf);raf=null;renderTimer();alarm();return}raf=requestAnimationFrame(tick)}
-$("start").onclick=()=>{if(running||remain<=0)return;running=true;last=performance.now();renderTimer();raf=requestAnimationFrame(tick)}
-$("stop").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;renderTimer()}
-$("reset").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;calculate()}
-$("dark").onclick=()=>{document.body.classList.toggle("dark");$("dark").textContent=document.body.classList.contains("dark")?"라이트 모드":"다크 모드"}
+
+$("themeToggle").onclick=()=>{
+
+    document.body.classList.toggle("dark");
+
+    const dark=document.body.classList.contains("dark");
+
+    localStorage.setItem(
+        "processingTimerTheme",
+        dark ? "dark" : "light"
+    );
+
+    $("themeToggle").textContent=
+        dark ? "☀" : "☾";
+};
+
+
+/*
+==================================================
+원재료 검색창
+==================================================
+*/
 
 const materialButton=$("materialButton");
+
 const materialMenu=$("materialMenu");
+
 const materialSearch=$("materialSearch");
+
 const materialOptions=$("materialOptions");
+
 const materialSelected=$("materialSelected");
-let materialIndex=0;
 
-function renderMaterialOptions(keyword=""){
- const q=keyword.trim().toLowerCase();
- const matches=materialData.map((d,i)=>({d,i})).filter(x=>!q||x.d.raw.toLowerCase().includes(q)||x.d.product.toLowerCase().includes(q));
- if(!matches.length){materialOptions.innerHTML='<div class="material-no-result">검색 결과가 없습니다.</div>';return;}
- materialOptions.innerHTML=matches.map(x=>`<button type="button" class="material-option ${x.i===materialIndex?"selected":""}" data-index="${x.i}">${x.d.raw}</button>`).join("");
- materialOptions.querySelectorAll(".material-option").forEach(b=>b.addEventListener("click",()=>{
-  materialIndex=Number(b.dataset.index);
-  materialSelected.textContent=materialData[materialIndex].raw;
-  closeMaterialMenu();
-  apply();
- }));
-}
-function openMaterialMenu(){
- materialMenu.hidden=false;
- materialButton.setAttribute("aria-expanded","true");
- materialSearch.value="";
- renderMaterialOptions();
- requestAnimationFrame(()=>materialSearch.focus());
-}
-function closeMaterialMenu(){
- materialMenu.hidden=true;
- materialButton.setAttribute("aria-expanded","false");
-}
-materialButton.addEventListener("click",()=>materialMenu.hidden?openMaterialMenu():closeMaterialMenu());
-materialSearch.addEventListener("input",()=>renderMaterialOptions(materialSearch.value));
-document.addEventListener("click",e=>{if(!$("materialSelect").contains(e.target))closeMaterialMenu()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMaterialMenu()});
 
-materialSelected.textContent=materialData[0].raw;
+function renderMaterialOptions(){
+
+    const keyword=
+        materialSearch.value
+            .trim()
+            .toLowerCase();
+
+    const filtered=materialData.filter(m=>
+        m.raw.toLowerCase().includes(keyword) ||
+        m.product.toLowerCase().includes(keyword)
+    );
+
+    materialOptions.innerHTML="";
+
+    if(filtered.length===0){
+
+        materialOptions.innerHTML=
+            `<div class="material-option">검색 결과가 없습니다.</div>`;
+
+        return;
+    }
+
+    filtered.forEach(m=>{
+
+        const div=document.createElement("div");
+
+        div.className="material-option";
+
+        div.innerHTML=`
+            ${m.raw}
+            <span class="material-option-product">
+                ${m.product}
+            </span>
+        `;
+
+        div.onclick=()=>{
+
+            selected=m;
+
+            materialSelected.textContent=m.raw;
+
+            $("product").value=m.product;
+
+            materialMenu.hidden=true;
+
+            materialButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            materialSearch.value="";
+
+            calculate();
+        };
+
+        materialOptions.appendChild(div);
+
+    });
+
+}
+
+
+materialButton.onclick=()=>{
+
+    const isOpen=!materialMenu.hidden;
+
+    materialMenu.hidden=isOpen;
+
+    materialButton.setAttribute(
+        "aria-expanded",
+        String(!isOpen)
+    );
+
+    if(!isOpen){
+
+        materialSearch.focus();
+
+        renderMaterialOptions();
+
+    }
+
+};
+
+
+materialSearch.addEventListener(
+    "input",
+    renderMaterialOptions
+);
+
+
+document.addEventListener("click",e=>{
+
+    if(!$("materialSelect").contains(e.target)){
+
+        materialMenu.hidden=true;
+
+        materialButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+    }
+
+});
+
+
+/*
+==================================================
+데이터 테이블
+==================================================
+*/
+
+const dataTableBody=$("dataTableBody");
+
+materialData.forEach(m=>{
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+        <td>${m.raw}</td>
+        <td>${m.product}</td>
+        <td>${m.weight}</td>
+        <td>${m.consume}</td>
+        <td>${m.time}초</td>
+    `;
+
+    dataTableBody.appendChild(tr);
+
+});
+
+
+/*
+==================================================
+계산
+==================================================
+*/
+
+function calculate(){
+
+    const count=
+        Math.max(
+            1,
+            Number($("count").value)||1
+        );
+
+    const rateRaw=
+        Number($("rate").value);
+
+    const rate=
+        Math.min(
+            100,
+            Math.max(
+                0,
+                Number.isFinite(rateRaw)
+                    ? rateRaw
+                    : 100
+            )
+        );
+
+    const currentWeight=
+        Math.max(
+            0,
+            Number($("cur").value)||0
+        );
+
+    const maxWeight=
+        Math.max(
+            0,
+            Number($("max").value)||0
+        );
+
+    const limitMultiplier=
+        Number($("limit").value)||1;
+
+    const owned=
+        Math.max(
+            0,
+            Number($("owned").value)||0
+        );
+
+
+    /*
+    무게 제한
+    */
+
+    const weightLimit=
+        maxWeight*limitMultiplier;
+
+
+    /*
+    1회 성공 시 생산량
+    */
+
+    const outputPerSuccess=
+        count*AVG;
+
+
+    /*
+    1회 성공 시 무게 증가량
+    */
+
+    const weightIncrease=
+        outputPerSuccess*selected.weight;
+
+
+    /*
+    1회 성공 시 원재료 소모량
+    */
+
+    const materialConsume=
+        count*selected.consume;
+
+
+    /*
+    남은 무게
+    */
+
+    const remainingWeight=
+        Math.max(
+            0,
+            weightLimit-currentWeight
+        );
+
+
+    /*
+    무게 기준 필요한 성공 횟수
+
+    마지막 성공으로 제한을 초과할 수 있음
+    */
+
+    const weightCycles=
+        weightIncrease>0
+            ? Math.ceil(
+                remainingWeight/
+                weightIncrease
+            )
+            : Infinity;
+
+
+    /*
+    원재료 기준 가능한 성공 횟수
+    */
+
+    const materialCycles=
+        materialConsume>0
+            ? Math.floor(
+                owned/
+                materialConsume
+            )
+            : Infinity;
+
+
+    /*
+    실제 필요한 성공 횟수
+    */
+
+    const requiredCycles=
+        Math.min(
+            weightCycles,
+            materialCycles
+        );
+
+
+    /*
+    성공률에 따른 예상 시도 횟수
+    */
+
+    let expectedAttempts=0;
+
+    if(rate>0){
+
+        expectedAttempts=
+            requiredCycles/
+            (rate/100);
+
+    }
+
+
+    /*
+    예상 생산량
+    */
+
+    const expectedOutput=
+        requiredCycles*
+        outputPerSuccess;
+
+
+    /*
+    예상 최종 무게
+
+    성공한 사이클의 결과물이 먼저 생성되고
+    이후 무게를 확인함
+    */
+
+    const finalWeight=
+        currentWeight+
+        requiredCycles*
+        weightIncrease;
+
+
+    /*
+    예상 시간
+    */
+
+    const expectedTime=
+        expectedAttempts*
+        selected.time;
+
+
+    expected=expectedTime;
+
+    remain=expectedTime;
+
+
+    /*
+    타이머가 실행 중이 아니라면
+    계산 결과를 새 시간으로 갱신
+    */
+
+    if(!running){
+
+        renderTimer();
+
+    }
+
+
+    /*
+    제한 원인
+    */
+
+    let reason="";
+
+    if(weightCycles<materialCycles){
+
+        reason="무게 제한";
+
+    }else if(materialCycles<weightCycles){
+
+        reason="원재료 소진";
+
+    }else{
+
+        reason="무게 제한 및 원재료";
+
+    }
+
+
+    /*
+    계산 결과 표시
+    */
+
+    $("result").innerHTML=`
+
+        <div class="result-row">
+            <span class="result-label">
+                무게 제한
+            </span>
+            <span class="result-value">
+                ${weightLimit.toFixed(1)} LT
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                가공품
+            </span>
+            <span class="result-value">
+                ${selected.product}
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                성공 1회 생산량
+            </span>
+            <span class="result-value">
+                ${outputPerSuccess.toLocaleString()}개
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                성공 1회 무게 증가
+            </span>
+            <span class="result-value">
+                ${weightIncrease.toFixed(2)} LT
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                성공 1회 원재료 소모
+            </span>
+            <span class="result-value">
+                ${materialConsume.toLocaleString()}개
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                무게 기준 성공 횟수
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(weightCycles)
+                    ? weightCycles.toLocaleString()
+                    : "-"
+                }회
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                원재료 기준 성공 횟수
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(materialCycles)
+                    ? materialCycles.toLocaleString()
+                    : "-"
+                }회
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                제한 원인
+            </span>
+            <span class="result-value">
+                ${reason}
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                필요한 성공 횟수
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(requiredCycles)
+                    ? requiredCycles.toLocaleString()
+                    : "-"
+                }회
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                예상 시도 횟수
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(expectedAttempts)
+                    ? expectedAttempts.toFixed(2)
+                    : "-"
+                }회
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                예상 생산량
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(expectedOutput)
+                    ? expectedOutput.toLocaleString()
+                    : "-"
+                }개
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                예상 최종 무게
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(finalWeight)
+                    ? finalWeight.toFixed(1)
+                    : "-"
+                } LT
+            </span>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">
+                예상 시간
+            </span>
+            <span class="result-value">
+                ${Number.isFinite(expectedTime)
+                    ? fmt(expectedTime)
+                    : "-"
+                }
+            </span>
+        </div>
+
+        ${
+            rate<100
+                ? `
+                <div class="small-note">
+                    성공률이 100% 미만이므로
+                    예상 시간은 평균값입니다.
+                    실패한 가공은 시간만 소모하며
+                    원재료와 생산량에는 영향을 주지 않습니다.
+                </div>
+                `
+                : ""
+        }
+
+        <div class="small-note">
+            가공 결과물이 먼저 생성된 후
+            무게 제한을 확인합니다.
+        </div>
+    `;
+
+}
+
+
+/*
+==================================================
+타이머 표시
+==================================================
+*/
+
+function renderTimer(){
+
+    $("timer").textContent=
+        fmt(remain);
+
+    document.title=
+        running
+            ? fmt(remain)
+            : "가공 타이머";
+
+}
+
+
+/*
+==================================================
+실제 시간 계산
+==================================================
+*/
+
+function updateRemain(){
+
+    if(!running){
+        return;
+    }
+
+    const elapsed=
+        (Date.now()-startTime)/1000;
+
+    remain=
+        Math.max(
+            0,
+            totalDuration-elapsed
+        );
+
+    renderTimer();
+
+    if(remain<=0){
+
+        finishTimer();
+
+    }
+
+}
+
+
+/*
+==================================================
+화면 갱신
+
+실제 시간은 Date.now()로 계산하기 때문에
+requestAnimationFrame이 백그라운드에서
+제한되어도 타이머 자체의 시간은 정확합니다.
+==================================================
+*/
+
+function tick(){
+
+    if(!running){
+        return;
+    }
+
+    updateRemain();
+
+    if(running){
+
+        raf=
+            requestAnimationFrame(tick);
+
+    }
+
+}
+
+
+/*
+==================================================
+알림음
+==================================================
+*/
+
+function getSelectedAlarm(){
+
+    const saved=
+        localStorage.getItem(
+            "processingTimerAlarm"
+        );
+
+    return alarmData.find(
+        a=>a.id===saved
+    ) || alarmData[0];
+
+}
+
+
+/*
+MP3 파일을 Web Audio Buffer로 로드
+*/
+
+async function loadAlarmBuffer(){
+
+    const alarm=
+        getSelectedAlarm();
+
+    const AudioContext=
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+    if(!AudioContext){
+
+        return null;
+
+    }
+
+    if(!audioContext){
+
+        audioContext=
+            new AudioContext();
+
+    }
+
+    if(audioContext.state==="suspended"){
+
+        await audioContext.resume();
+
+    }
+
+
+    /*
+    같은 파일이 이미 로드되어 있다면 재사용
+    */
+
+    if(
+        alarmBuffer &&
+        alarmBufferFile===alarm.file
+    ){
+
+        return alarmBuffer;
+
+    }
+
+
+    const response=
+        await fetch(alarm.file);
+
+    if(!response.ok){
+
+        throw new Error(
+            `알림음 파일을 불러올 수 없습니다: ${alarm.file}`
+        );
+
+    }
+
+
+    const arrayBuffer=
+        await response.arrayBuffer();
+
+
+    alarmBuffer=
+        await audioContext.decodeAudioData(
+            arrayBuffer
+        );
+
+    alarmBufferFile=
+        alarm.file;
+
+    return alarmBuffer;
+
+}
+
+
+/*
+알림음 예약
+*/
+
+async function scheduleAlarm(delay){
+
+    try{
+
+        const buffer=
+            await loadAlarmBuffer();
+
+        if(!buffer){
+
+            return;
+
+        }
+
+        if(audioContext.state==="suspended"){
+
+            await audioContext.resume();
+
+        }
+
+
+        const source=
+            audioContext.createBufferSource();
+
+        source.buffer=buffer;
+
+        source.connect(
+            audioContext.destination
+        );
+
+
+        const startAt=
+            audioContext.currentTime+
+            Math.max(0,delay);
+
+
+        source.start(startAt);
+
+        scheduledAlarm=source;
+
+
+        source.onended=()=>{
+
+            if(scheduledAlarm===source){
+
+                scheduledAlarm=null;
+
+            }
+
+        };
+
+
+    }catch(e){
+
+        console.warn(
+            "알림음 예약 실패:",
+            e
+        );
+
+    }
+
+}
+
+
+/*
+예약된 알림음 취소
+*/
+
+function cancelScheduledAlarm(){
+
+    if(!scheduledAlarm){
+
+        return;
+
+    }
+
+    try{
+
+        scheduledAlarm.stop();
+
+    }catch(e){
+
+    }
+
+    try{
+
+        scheduledAlarm.disconnect();
+
+    }catch(e){
+
+    }
+
+    scheduledAlarm=null;
+
+}
+
+
+/*
+==================================================
+알림음 선택 UI
+==================================================
+*/
+
+const alarmSelect=
+    $("alarmSelect");
+
+const alarmPreview=
+    $("alarmPreview");
+
+const alarmNote=
+    $("alarmNote");
+
+
+alarmSelect.innerHTML=
+    alarmData
+        .map(
+            a=>
+                `<option value="${a.id}">
+                    ${a.name}
+                </option>`
+        )
+        .join("");
+
+
+alarmSelect.value=
+    getSelectedAlarm().id;
+
+
+alarmSelect.addEventListener(
+    "change",
+    async()=>{
+
+        localStorage.setItem(
+            "processingTimerAlarm",
+            alarmSelect.value
+        );
+
+
+        /*
+        기존에 로드된 알림음 캐시 삭제
+        */
+
+        alarmBuffer=null;
+
+        alarmBufferFile=null;
+
+
+        /*
+        현재 실행 중이라면
+        예약된 기존 알림을 취소하고
+        새 알림음을 같은 남은 시간으로 예약
+        */
+
+        if(running){
+
+            cancelScheduledAlarm();
+
+            const elapsed=
+                (Date.now()-startTime)/1000;
+
+            remain=
+                Math.max(
+                    0,
+                    totalDuration-elapsed
+                );
+
+            if(remain>0){
+
+                await scheduleAlarm(remain);
+
+            }
+
+        }
+
+
+        alarmNote.textContent=
+            "선택한 알림음이 저장되었습니다.";
+
+        setTimeout(()=>{
+
+            alarmNote.textContent="";
+
+        },1500);
+
+    }
+);
+
+
+/*
+미리듣기
+*/
+
+alarmPreview.onclick=
+    async()=>{
+
+        try{
+
+            const buffer=
+                await loadAlarmBuffer();
+
+            if(!buffer){
+
+                return;
+
+            }
+
+            if(audioContext.state==="suspended"){
+
+                await audioContext.resume();
+
+            }
+
+
+            const source=
+                audioContext.createBufferSource();
+
+            source.buffer=buffer;
+
+            source.connect(
+                audioContext.destination
+            );
+
+            source.start();
+
+        }catch(e){
+
+            console.warn(
+                "알림음 미리듣기 실패:",
+                e
+            );
+
+            alarmNote.textContent=
+                "알림음을 재생할 수 없습니다.";
+
+        }
+
+    };
+
+
+/*
+==================================================
+타이머 시작
+==================================================
+*/
+
+$("start").onclick=
+    async()=>{
+
+        if(
+            running ||
+            remain<=0
+        ){
+
+            return;
+
+        }
+
+
+        running=true;
+
+
+        /*
+        시작 시각 기록
+        */
+
+        startTime=
+            Date.now();
+
+
+        /*
+        시작 시점의 남은 시간을 보관
+        */
+
+        totalDuration=
+            remain;
+
+
+        renderTimer();
+
+
+        /*
+        알림음 예약
+
+        시작 버튼은 사용자의 직접 클릭이므로
+        이 시점에서 AudioContext를 활성화할 수 있습니다.
+        */
+
+        await scheduleAlarm(
+            totalDuration
+        );
+
+
+        /*
+        화면 갱신 시작
+        */
+
+        raf=
+            requestAnimationFrame(
+                tick
+            );
+
+    };
+
+
+/*
+==================================================
+타이머 정지
+==================================================
+*/
+
+$("stop").onclick=
+    ()=>{
+
+        if(!running){
+
+            return;
+
+        }
+
+
+        /*
+        정지 직전 실제 경과시간 반영
+        */
+
+        updateRemain();
+
+
+        /*
+        updateRemain에서
+        타이머가 끝난 경우
+        */
+
+        if(!running){
+
+            return;
+
+        }
+
+
+        running=false;
+
+
+        if(raf){
+
+            cancelAnimationFrame(raf);
+
+            raf=null;
+
+        }
+
+
+        cancelScheduledAlarm();
+
+        renderTimer();
+
+    };
+
+
+/*
+==================================================
+타이머 초기화
+==================================================
+*/
+
+$("reset").onclick=
+    ()=>{
+
+        running=false;
+
+
+        if(raf){
+
+            cancelAnimationFrame(raf);
+
+            raf=null;
+
+        }
+
+
+        cancelScheduledAlarm();
+
+
+        /*
+        현재 설정을 기준으로
+        타이머를 다시 계산
+        */
+
+        calculate();
+
+    };
+
+
+/*
+==================================================
+타이머 종료
+==================================================
+*/
+
+function finishTimer(){
+
+    if(!running){
+
+        return;
+
+    }
+
+
+    running=false;
+
+
+    if(raf){
+
+        cancelAnimationFrame(raf);
+
+        raf=null;
+
+    }
+
+
+    remain=0;
+
+
+    renderTimer();
+
+
+    /*
+    알림음은 이미 AudioContext에 예약되어 있으므로
+    여기서 다시 재생하지 않습니다.
+
+    잠시 후 자동 초기화합니다.
+    */
+
+    setTimeout(()=>{
+
+        /*
+        자동 초기화 전에
+        타이머가 다시 시작되지 않았는지 확인
+        */
+
+        if(!running){
+
+            calculate();
+
+        }
+
+    },1000);
+
+}
+
+
+/*
+==================================================
+다른 탭에서 돌아왔을 때
+==================================================
+*/
+
+document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+        if(!running){
+
+            return;
+
+        }
+
+        updateRemain();
+
+        if(running){
+
+            renderTimer();
+
+        }
+
+    }
+);
+
+
+/*
+브라우저 창 자체가 다시 활성화되었을 때도
+시간을 한 번 갱신합니다.
+*/
+
+window.addEventListener(
+    "focus",
+    ()=>{
+
+        if(running){
+
+            updateRemain();
+
+        }
+
+    }
+);
+
+
+/*
+==================================================
+입력값 변경
+==================================================
+*/
+
+[
+    "count",
+    "rate",
+    "cur",
+    "max",
+    "limit",
+    "owned"
+].forEach(id=>{
+
+    $(id).addEventListener(
+        "input",
+        calculate
+    );
+
+    $(id).addEventListener(
+        "change",
+        calculate
+    );
+
+});
+
+
+/*
+==================================================
+초기화
+==================================================
+*/
+
+materialSelected.textContent=
+    materialData[0].raw;
+
+$("product").value=
+    materialData[0].product;
+
 renderMaterialOptions();
 
-const alarmSelect=$("alarmSelect");
-const alarmPreview=$("alarmPreview");
-const alarmNote=$("alarmNote");
+alarmSelect.value=
+    getSelectedAlarm().id;
 
-alarmSelect.innerHTML=alarmData.map(a=>`<option value="${a.id}">${a.name}</option>`).join("");
-alarmSelect.value=getSelectedAlarm().id;
-setAlarmAudio();
+calculate();
 
-alarmSelect.addEventListener("change",()=>{
- localStorage.setItem("processingTimerAlarm",alarmSelect.value);
- setAlarmAudio();
- alarmNote.textContent="선택한 알림음이 저장되었습니다.";
-});
-
-alarmPreview.addEventListener("click",()=>{
- setAlarmAudio();
- playAlarm();
-});
-
-[$("count"),$("rate"),$("cur"),$("max"),$("limit"),$("owned")].forEach(e=>{e.oninput=calculate;e.onchange=calculate});
-$("tbody").innerHTML=materialData.map(d=>`<tr><td>${d.raw}</td><td>${d.product}</td><td>${d.weight}</td><td>${d.consume}</td><td>${d.time}초</td></tr>`).join("");
-apply();
 </script>
+
 </body>
 </html>
