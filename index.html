@@ -111,8 +111,43 @@ function calculate(){
  $("note").textContent=r<1?"성공률이 100% 미만이므로 표시 시간은 평균 예상 시간입니다. 실패 회차도 시간은 소모되지만 재료와 생산물은 변하지 않습니다.":"가공품 생성 후 무게를 확인하므로 마지막 가공은 제한을 초과할 수 있습니다.";
 }
 function apply(){selected=materialData[materialIndex]||materialData[0];$("product").value=selected.product;calculate()}
-function alarm(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();let t=audio.currentTime;[0,.22,.44].forEach(o=>{let a=audio.createOscillator(),g=audio.createGain();a.frequency.value=880;g.gain.setValueAtTime(.001,t+o);g.gain.exponentialRampToValueAtTime(.2,t+o+.01);g.gain.exponentialRampToValueAtTime(.001,t+o+.16);a.connect(g);g.connect(audio.destination);a.start(t+o);a.stop(t+o+.17)})}catch(e){}}
-function tick(now){if(!running)return;remain=Math.max(0,remain-(now-last)/1000);last=now;renderTimer();if(remain<=0){running=false;cancelAnimationFrame(raf);raf=null;renderTimer();alarm();return}raf=requestAnimationFrame(tick)}
+
+function alarm() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+
+        const ctx = new AudioContext();
+
+        const playTone = (freq, startTime, duration) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, startTime);
+
+            gain.gain.setValueAtTime(1, startTime);
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                startTime + duration
+            );
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        };
+
+        playTone(880, ctx.currentTime, 0.3);
+        playTone(1108.73, ctx.currentTime + 0.15, 0.5);
+
+    } catch (e) {
+        console.warn("웹 오디오 에러");
+    }
+}
+ 
+ function tick(now){if(!running)return;remain=Math.max(0,remain-(now-last)/1000);last=now;renderTimer();if(remain<=0){running=false;cancelAnimationFrame(raf);raf=null;renderTimer();alarm();return}raf=requestAnimationFrame(tick)}
 $("start").onclick=()=>{if(running||remain<=0)return;running=true;last=performance.now();renderTimer();raf=requestAnimationFrame(tick)}
 $("stop").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;renderTimer()}
 $("reset").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;calculate()}
