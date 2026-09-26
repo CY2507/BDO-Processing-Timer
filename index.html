@@ -21,6 +21,16 @@ input:read-only{opacity:.7}button{cursor:pointer;font-weight:600}.primary{backgr
 .row{display:flex;justify-content:space-between;gap:8px}.row span{color:var(--muted)}
 .note{color:var(--muted);font-size:12px;line-height:1.45;margin-top:7px}
 table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:5px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted)}
+
+.search-select{position:relative}
+.search-select-button{display:flex;align-items:center;justify-content:space-between;text-align:left}
+.search-arrow{font-size:10px;color:var(--muted);margin-left:8px}
+.search-select-menu{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--border);border-radius:7px;box-shadow:0 6px 18px rgba(0,0,0,.16);padding:6px}
+.material-search-input{width:100%;margin-bottom:5px}
+.material-options{max-height:220px;overflow-y:auto}
+.material-option{display:block;width:100%;height:32px;border:0;border-radius:5px;background:transparent;color:var(--text);text-align:left;padding:0 8px;cursor:pointer;font:inherit}
+.material-option:hover,.material-option.selected{background:var(--bg)}
+.material-no-result{padding:8px;color:var(--muted);font-size:12px}
 @media(max-width:520px){.grid,.result{grid-template-columns:1fr}}
 </style>
 </head>
@@ -49,7 +59,18 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:5px;borde
 <section class="card">
 <div class="card-title">가공 시작</div>
 <div class="grid">
-<div><label>원재료</label><select id="material"></select></div>
+<div class="material-search-field">
+<label>원재료</label>
+<div class="search-select" id="materialSelect">
+<button type="button" class="search-select-button" id="materialButton" aria-expanded="false">
+<span id="materialSelected">원재료 선택</span><span class="search-arrow">▼</span>
+</button>
+<div class="search-select-menu" id="materialMenu" hidden>
+<input id="materialSearch" class="material-search-input" type="search" placeholder="원재료 검색..." autocomplete="off">
+<div id="materialOptions" class="material-options"></div>
+</div>
+</div>
+</div>
 <div><label>가공품</label><input id="product" readonly></div>
 <div><label>보유 갯수</label><input id="owned" type="number" min="0" value="29636"></div>
 </div>
@@ -89,15 +110,50 @@ function calculate(){
  $("result").innerHTML=rows.map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
  $("note").textContent=r<1?"성공률이 100% 미만이므로 표시 시간은 평균 예상 시간입니다. 실패 회차도 시간은 소모되지만 재료와 생산물은 변하지 않습니다.":"가공품 생성 후 무게를 확인하므로 마지막 가공은 제한을 초과할 수 있습니다.";
 }
-function apply(){selected=materialData[+$("material").value||0];$("product").value=selected.product;calculate()}
+function apply(){selected=materialData[materialIndex]||materialData[0];$("product").value=selected.product;calculate()}
 function alarm(){try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();let t=audio.currentTime;[0,.22,.44].forEach(o=>{let a=audio.createOscillator(),g=audio.createGain();a.frequency.value=880;g.gain.setValueAtTime(.001,t+o);g.gain.exponentialRampToValueAtTime(.2,t+o+.01);g.gain.exponentialRampToValueAtTime(.001,t+o+.16);a.connect(g);g.connect(audio.destination);a.start(t+o);a.stop(t+o+.17)})}catch(e){}}
 function tick(now){if(!running)return;remain=Math.max(0,remain-(now-last)/1000);last=now;renderTimer();if(remain<=0){running=false;cancelAnimationFrame(raf);raf=null;renderTimer();alarm();return}raf=requestAnimationFrame(tick)}
 $("start").onclick=()=>{if(running||remain<=0)return;running=true;last=performance.now();renderTimer();raf=requestAnimationFrame(tick)}
 $("stop").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;renderTimer()}
 $("reset").onclick=()=>{running=false;if(raf)cancelAnimationFrame(raf);raf=null;calculate()}
 $("dark").onclick=()=>{document.body.classList.toggle("dark");$("dark").textContent=document.body.classList.contains("dark")?"라이트 모드":"다크 모드"}
-materialData.forEach((d,i)=>{let o=document.createElement("option");o.value=i;o.textContent=d.raw;$("material").appendChild(o)});
-$("material").onchange=apply;
+
+const materialButton=$("materialButton");
+const materialMenu=$("materialMenu");
+const materialSearch=$("materialSearch");
+const materialOptions=$("materialOptions");
+const materialSelected=$("materialSelected");
+let materialIndex=0;
+
+function renderMaterialOptions(keyword=""){
+ const q=keyword.trim().toLowerCase();
+ const matches=materialData.map((d,i)=>({d,i})).filter(x=>!q||x.d.raw.toLowerCase().includes(q)||x.d.product.toLowerCase().includes(q));
+ if(!matches.length){materialOptions.innerHTML='<div class="material-no-result">검색 결과가 없습니다.</div>';return;}
+ materialOptions.innerHTML=matches.map(x=>`<button type="button" class="material-option ${x.i===materialIndex?"selected":""}" data-index="${x.i}">${x.d.raw}</button>`).join("");
+ materialOptions.querySelectorAll(".material-option").forEach(b=>b.addEventListener("click",()=>{
+  materialIndex=Number(b.dataset.index);
+  materialSelected.textContent=materialData[materialIndex].raw;
+  closeMaterialMenu();
+  apply();
+ }));
+}
+function openMaterialMenu(){
+ materialMenu.hidden=false;
+ materialButton.setAttribute("aria-expanded","true");
+ materialSearch.value="";
+ renderMaterialOptions();
+ requestAnimationFrame(()=>materialSearch.focus());
+}
+function closeMaterialMenu(){
+ materialMenu.hidden=true;
+ materialButton.setAttribute("aria-expanded","false");
+}
+materialButton.addEventListener("click",()=>materialMenu.hidden?openMaterialMenu():closeMaterialMenu());
+materialSearch.addEventListener("input",()=>renderMaterialOptions(materialSearch.value));
+document.addEventListener("click",e=>{if(!$("materialSelect").contains(e.target))closeMaterialMenu()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMaterialMenu()});
+materialSelected.textContent=materialData[0].raw;
+renderMaterialOptions();
 [$("count"),$("rate"),$("cur"),$("max"),$("limit"),$("owned")].forEach(e=>{e.oninput=calculate;e.onchange=calculate});
 $("tbody").innerHTML=materialData.map(d=>`<tr><td>${d.raw}</td><td>${d.product}</td><td>${d.weight}</td><td>${d.consume}</td><td>${d.time}초</td></tr>`).join("");
 apply();
